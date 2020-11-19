@@ -17,21 +17,20 @@ namespace adoopp {
 // template <typename T>
 class Dual {
  public:
-  Dual() : real_(0), dual_(0), index_(0), grad_(1) {}
-  Dual(double r) : real_(r), dual_(0), index_(0), grad_(1) {}
-  Dual(double r, double d) : real_(r), dual_(d), index_(0), grad_(1) {}
-  Dual(const Dual& t)
-      : real_(t.real_), dual_(t.dual_), index_(t.index_), grad_(t.grad_) {}
+  /*Dual*/
+  Dual() : real_(0), dual_(0) {}
+  explicit Dual(double r) : real_(r), dual_(0) {}
+  Dual(double r, double d) : real_(r), dual_(d) {}
+  Dual(const Dual& t) : real_(t.real_), dual_(t.dual_) {}
 #ifdef SPARSE_DAE
   Dual(const Dual&& t) : real_(t.real_), dual(t.dual_) {
     dual_map_ = std::move(t.dual_map_);
   }
 #else
-  Dual(const Dual&& t)
-      : real_(t.real_), dual_(t.dual_), index_(t.index_), grad_(t.grad_) {}
-
-  Dual(const int& index, std::vector<int> grad)
-      : index_(index), grad_(grad), real_(index), dual_(grad[index]) {}
+  Dual(const Dual&& t) : real_(t.real_), dual_(t.dual_) {}
+  /*Dual*/
+  // Dual(const int& index, std::vector<int> grad)
+  //     : index_(index), grad_(grad), real_(index), dual_(grad[index]) {}
 #endif
 
   Dual& operator=(Dual&& t) = default;
@@ -51,10 +50,10 @@ class Dual {
   friend Dual operator*(const Dual& t1, const Dual& t2);
   friend Dual operator/(const Dual& t1, const Dual& t2);
 
-  Dual& operator+=(const Dual& t1);
-  Dual& operator-=(const Dual& t1);
-  Dual& operator*=(const Dual& t1);
-  Dual& operator/=(const Dual& t1);
+  Dual& operator+=(const Dual&);
+  Dual& operator-=(const Dual&);
+  Dual& operator*=(const Dual&);
+  Dual& operator/=(const Dual&);
 
   // sinh,cosh,tanh
 
@@ -96,17 +95,16 @@ class Dual {
   friend Dual acos(const Dual& t);
   friend Dual atan(const Dual& t);
   friend Dual sqr(const Dual& t);
+  friend Dual cosh(const Dual& t);
+  friend Dual sinh(const Dual& t);
+  friend Dual tanh(const Dual& t);
   //   friend Dual Diff(const Dual& t, int d);
 
   const double& real() const { return real_; }
   const double& dual() const { return dual_; }
-  const std::vector<int>& grad() const { return grad_; }
-  const int& index() const { return index_; }
 
-  void setReal(double val) { real_ = val; }
-  void setDual(double val) { dual_ = val; }
-
-  void setIndex(int i) { index_ = i; }
+  void setReal(const double val) { real_ = val; }
+  void setDual(const double val) { dual_ = val; }
 
   //   const bool& size() const { return }
 
@@ -119,8 +117,6 @@ class Dual {
   bool is_zero() const { return real_ == 0; }
   double real_;
   double dual_;
-  int index_;
-  std::vector<int> grad_;
 #ifdef SPASE_DAE
   DualMap<T> dual_map_;
 #endif
